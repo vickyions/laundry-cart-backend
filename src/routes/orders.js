@@ -94,4 +94,37 @@ router.delete("/", async (req, res) => {
         });
     }
 });
+
+router.put("/", async (req, res) => {
+    try {
+        const { id: userId, email } = req.tokenPayload;
+
+        const { orderId } = req.body;
+
+        const result = await Order.findByIdAndUpdate(orderId, { status: "Canceled" });
+
+        if (!result) {
+            return res.status(400).json({
+                status: "failed",
+                message: "order cancellation failed",
+                orderId,
+            });
+        }
+
+        res.json({
+            status: "success",
+            message: "order succefully canceled",
+            order: result,
+        });
+    } catch (err) {
+        console.log("/orders endpoint POST err:: ");
+        console.dir(err);
+        res.status(500).json({
+            status: "failed",
+            message: "server error during cancellation of the order",
+            error: err.message,
+        });
+    }
+});
+
 module.exports = router;
